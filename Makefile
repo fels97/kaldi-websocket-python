@@ -9,7 +9,7 @@ KALDI_FLAGS := -DKALDI_DOUBLEPRECISION=0 -DHAVE_POSIX_MEMALIGN \
 -I$(KALDI_ROOT)/tools/ATLAS/include \
 -I$(KALDI_ROOT)/tools/openfst/include -I$(KALDI_ROOT)/src 
 
-CXXFLAGS := -std=c++11 -g -Wall -DPIC -fPIC $(KALDI_FLAGS) `pkg-config --cflags python3`
+CXXFLAGS := -std=c++11 -g -Wall -DPIC -fPIC $(KALDI_FLAGS) -DFST_NO_DYNAMIC_LINKING `pkg-config --cflags python3`
 
 KALDI_LIBS = \
 	-rdynamic -Wl,-rpath=$(KALDI_ROOT)/tools/openfst/lib \
@@ -28,7 +28,7 @@ KALDI_LIBS = \
 	$(KALDI_ROOT)/src/fstext/kaldi-fstext.a \
 	$(KALDI_ROOT)/src/util/kaldi-util.a \
 	$(KALDI_ROOT)/src/base/kaldi-base.a \
-	-L $(KALDI_ROOT)/tools/openfst/lib -lfst \
+	$(KALDI_ROOT)/tools/openfst/lib/libfst.a \
 	$(ATLASLIBS) \
 	`pkg-config --libs python3` \
 	-lm -lpthread
