@@ -1,7 +1,9 @@
 #include "model.h"
 
 #include <fst/fst.h>
+#include <fst/register.h>
 #include <fst/matcher-fst.h>
+#include <fst/extensions/ngram/ngram-fst.h>
 
 namespace fst {
 
@@ -15,8 +17,8 @@ static FstRegisterer<MatcherFst<
     olabel_lookahead_fst_type, LabelLookAheadRelabeler<LogArc>>>
     OLabelLookAheadFst_LogArc_registerer;
 
+static FstRegisterer<NGramFst<StdArc>> NGramFst_StdArc_registerer;
 }  // namespace fst
-
 
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -35,8 +37,8 @@ Model::Model(const char *model_path) {
     const char *usage = "Read the docs";
     const char *extra_args[] = {
         "--min-active=200",
-        "--max-active=6000",
-        "--beam=13.0",
+        "--max-active=2000",
+        "--beam=10.0",
         "--lattice-beam=2.0",
         "--acoustic-scale=1.0",
 
@@ -102,7 +104,7 @@ Model::Model(const char *model_path) {
 
     decodable_info_ = new nnet3::DecodableNnetSimpleLoopedInfo(decodable_opts_,
                                                                nnet_);
-    g_fst_ = fst::ReadFstKaldiGeneric(g_fst_rxfilename_);
+    g_fst_ = fst::StdFst::Read(g_fst_rxfilename_);
     hcl_fst_ = fst::StdFst::Read(hcl_fst_rxfilename_);
 
     word_syms_ = NULL;

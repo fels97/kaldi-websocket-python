@@ -6,13 +6,11 @@
 using namespace fst;
 using namespace kaldi::nnet3;
 
-int FLAGS_v = 0;
-
 template<class Arc>
 ComposeFst<Arc> *TableComposeFst(
     const Fst<Arc> &ifst1, const Fst<Arc> &ifst2) {
   typedef LookAheadMatcher< StdFst > M;
-  typedef SequenceComposeFilter<M> SF;
+  typedef AltSequenceComposeFilter<M> SF;
   typedef LookAheadComposeFilter<SF, M>  LF;
   typedef PushWeightsComposeFilter<LF, M> WF;
   typedef PushLabelsComposeFilter<WF, M> ComposeFilter;
@@ -104,6 +102,7 @@ std::string KaldiRecognizer::Result()
 
     kaldi::CompactLattice clat;
     decoder_->GetLattice(true, &clat);
+    fst::ScaleLattice(fst::LatticeScale(8.0, 10.0), &clat);
 
     CompactLattice aligned_lat;
     WordAlignLattice(clat, *model_.trans_model_, *model_.winfo_, 0, &aligned_lat);
