@@ -27,12 +27,12 @@ KaldiRecognizer::KaldiRecognizer(Model &model) : model_(model) {
     feature_pipeline_ = new kaldi::OnlineNnet2FeaturePipeline (model_.feature_info_);
     silence_weighting_ = new kaldi::OnlineSilenceWeighting(*model_.trans_model_, model_.feature_info_.silence_weighting_config, 3);
 
-    fst::ComposeFst<StdArc> *decode_fst = TableComposeFst(*model_.hcl_fst_, *model_.g_fst_);
+    decode_fst_ = TableComposeFst(*model_.hcl_fst_, *model_.g_fst_);
 
     decoder_ = new kaldi::SingleUtteranceNnet3Decoder(model_.nnet3_decoding_config_,
             *model_.trans_model_,
             *model_.decodable_info_,
-            *decode_fst,
+            *decode_fst_,
             feature_pipeline_);
 
     frame_offset = 0;
@@ -42,7 +42,7 @@ KaldiRecognizer::KaldiRecognizer(Model &model) : model_(model) {
 KaldiRecognizer::~KaldiRecognizer() {
     delete feature_pipeline_;
     delete silence_weighting_;
-
+    delete decode_fst_;
     delete decoder_;
 }
 
