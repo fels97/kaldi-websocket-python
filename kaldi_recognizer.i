@@ -46,8 +46,8 @@ import java.nio.ByteOrder;
 #if SWIGCSHARP
 CSHARP_ARRAYS(char, byte)
 %apply char INPUT[] {const char *data};
+%apply short INPUT[] {const short *sdata};
 %apply float INPUT[] {const float *fdata};
-%apply short INPUT[] {const float *sdata};
 #endif
 
 %include "kaldi_recognizer.h"
