@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
-from kaldi_recognizer import Model, KaldiRecognizer
+from kaldi import Model, KaldiRecognizer
 import sys
 import json
 
 model = Model("model")
-rec = KaldiRecognizer(model)
+rec = KaldiRecognizer(model, 16000.0)
 
 wf = open(sys.argv[1], "rb")
 wf.read(44) # skip header

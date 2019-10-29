@@ -53,9 +53,7 @@ protected:
     kaldi::OnlineEndpointConfig endpoint_config_;
     kaldi::LatticeFasterDecoderConfig nnet3_decoding_config_;
     kaldi::nnet3::NnetSimpleLoopedComputationOptions decodable_opts_;
-
     kaldi::OnlineNnet2FeaturePipelineInfo feature_info_;
-    kaldi::BaseFloat sample_frequency;
 
     kaldi::nnet3::DecodableNnetSimpleLoopedInfo *decodable_info_;
     kaldi::TransitionModel *trans_model_;

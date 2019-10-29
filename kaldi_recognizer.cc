@@ -22,7 +22,7 @@ ComposeFst<Arc> *TableComposeFst(
   return new ComposeFst<Arc>(ifst1, ifst2, opts);
 }
 
-KaldiRecognizer::KaldiRecognizer(Model &model) : model_(model) {
+KaldiRecognizer::KaldiRecognizer(Model &model, float sample_frequency) : model_(model), sample_frequency_(sample_frequency) {
 
     feature_pipeline_ = new kaldi::OnlineNnet2FeaturePipeline (model_.feature_info_);
     silence_weighting_ = new kaldi::OnlineSilenceWeighting(*model_.trans_model_, model_.feature_info_.silence_weighting_config, 3);
@@ -35,7 +35,7 @@ KaldiRecognizer::KaldiRecognizer(Model &model) : model_(model) {
             *decode_fst_,
             feature_pipeline_);
 
-    frame_offset = 0;
+    frame_offset_ = 0;
     input_finalized_ = false;
 }
 
@@ -51,8 +51,8 @@ void KaldiRecognizer::CleanUp()
     delete silence_weighting_;
     silence_weighting_ = new kaldi::OnlineSilenceWeighting(*model_.trans_model_, model_.feature_info_.silence_weighting_config, 3);
 
-    frame_offset += decoder_->NumFramesDecoded();
-    decoder_->InitDecoding(frame_offset);
+    frame_offset_ += decoder_->NumFramesDecoded();
+    decoder_->InitDecoding(frame_offset_);
 }
 
 void KaldiRecognizer::UpdateSilenceWeights()
@@ -62,26 +62,47 @@ void KaldiRecognizer::UpdateSilenceWeights()
         std::vector<std::pair<int32, BaseFloat> > delta_weights;
         silence_weighting_->ComputeCurrentTraceback(decoder_->Decoder());
         silence_weighting_->GetDeltaWeights(feature_pipeline_->NumFramesReady(),
-                                          frame_offset * 3,
+                                          frame_offset_ * 3,
                                           &delta_weights);
         feature_pipeline_->UpdateFrameWeights(delta_weights);
     }
 }
 
-bool KaldiRecognizer::AcceptWaveform(const char *data, int len) 
+bool KaldiRecognizer::AcceptWaveform(const char *data, int len)
 {
+    Vector<BaseFloat> wave;
+    wave.Resize(len / 2, kUndefined);
+    for (int i = 0; i < len / 2; i++)
+        wave(i) = *(((short *)data) + i);
+    return AcceptWaveform(wave);
+}
 
+bool KaldiRecognizer::AcceptWaveform(const short *sdata, int len)
+{
+    Vector<BaseFloat> wave;
+    wave.Resize(len, kUndefined);
+    for (int i = 0; i < len; i++)
+        wave(i) = sdata[i];
+    return AcceptWaveform(wave);
+}
+
+bool KaldiRecognizer::AcceptWaveform(const float *fdata, int len)
+{
+    Vector<BaseFloat> wave;
+    wave.Resize(len, kUndefined);
+    for (int i = 0; i < len; i++)
+        wave(i) = fdata[i];
+    return AcceptWaveform(wave);
+}
+
+bool KaldiRecognizer::AcceptWaveform(Vector<BaseFloat> &wdata)
+{
     if (input_finalized_) {
         CleanUp();
         input_finalized_ = false;
     }
 
-    Vector<BaseFloat> wave;
-    wave.Resize(len / 2, kUndefined);
-    for (int i = 0; i < len / 2; i++)
-        wave(i) = *(((short *)data) + i);
-
-    feature_pipeline_->AcceptWaveform(16000, wave);
+    feature_pipeline_->AcceptWaveform(sample_frequency_, wdata);
     UpdateSilenceWeights();
     decoder_->AdvanceDecoding();
 

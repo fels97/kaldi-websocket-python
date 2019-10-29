@@ -1,5 +1,5 @@
-#ATLASLIBS = /usr/lib/libatlas.so.3 /usr/lib/libf77blas.so.3 /usr/lib/libcblas.so.3 /usr/lib/liblapack_atlas.so.3
-ATLASLIBS = /usr/lib/x86_64-linux-gnu/libatlas.so.3 /usr/lib/x86_64-linux-gnu/libf77blas.so.3 /usr/lib/x86_64-linux-gnu/libcblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack_atlas.so.3 -Wl,-rpath=/usr/lib/x86_64-linux-gnu
+ATLASLIBS = /usr/lib/libatlas.so.3 /usr/lib/libf77blas.so.3 /usr/lib/libcblas.so.3 /usr/lib/liblapack_atlas.so.3
+#ATLASLIBS = /usr/lib/x86_64-linux-gnu/libatlas.so.3 /usr/lib/x86_64-linux-gnu/libf77blas.so.3 /usr/lib/x86_64-linux-gnu/libcblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack_atlas.so.3 -Wl,-rpath=/usr/lib/x86_64-linux-gnu
 KALDI_ROOT=$(HOME)/voicechat/kaldi
 CXX := g++
 
@@ -34,13 +34,13 @@ KALDI_LIBS = \
 	`pkg-config --libs python3` \
 	-lm -lpthread
 
-all: _kaldi_recognizer.so
+all: _kaldi.so
 
-_kaldi_recognizer.so: kaldi_recognizer_wrap.cc kaldi_recognizer.cc model.cc
-	$(CXX) $(CXXFLAGS) -shared -o $@ kaldi_recognizer.cc model.cc kaldi_recognizer_wrap.cc $(KALDI_LIBS)
+_kaldi.so: kaldi_recognizer_wrap.cc kaldi_recognizer.cc model.cc
+	$(CXX) $(CXXFLAGS) -shared -o $@ kaldi_recognizer.cc model.cc kaldi_wrap.cc $(KALDI_LIBS)
 
 kaldi_recognizer_wrap.cc: kaldi_recognizer.i
-	swig -python -c++ -o kaldi_recognizer_wrap.cc kaldi_recognizer.i
+	swig -python -c++ -o kaldi_wrap.cc kaldi_recognizer.i
 
 clean:
-	$(RM) *.so kaldi_recognizer_wrap.cc *.o *.pyc kaldi_recognizer.py
+	$(RM) *.so kaldi_wrap.cc *.o *.pyc kaldi.py
