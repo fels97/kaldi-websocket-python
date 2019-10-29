@@ -4,3 +4,5 @@ kaldi.py
 kaldi_wrap.cc
 *.wav
 model
+gen/*.cs
+test.exe
