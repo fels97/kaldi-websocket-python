@@ -48,6 +48,7 @@ protected:
     std::string nnet3_rxfilename_;
     std::string fst_rxfilename_;
     std::string word_syms_rxfilename_;
+    std::string phone_syms_rxfilename_;
 
     kaldi::OnlineEndpointConfig endpoint_config_;
     kaldi::LatticeFasterDecoderConfig nnet3_decoding_config_;
