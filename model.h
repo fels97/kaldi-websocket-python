@@ -62,6 +62,7 @@ protected:
     kaldi::TransitionModel *trans_model_;
     kaldi::nnet3::AmNnetSimple *nnet_;
     fst::SymbolTable *word_syms_;
+    fst::SymbolTable *phone_syms_;
     kaldi::WordBoundaryInfo *winfo_;
 };
 
